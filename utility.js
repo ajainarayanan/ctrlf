@@ -2,7 +2,8 @@ module.exports = utility;
 
 function utility() {
   return {
-    commonsubstring: commonsubstring
+    commonsubstring: commonsubstring,
+    query: query
   };
 }
 
@@ -21,7 +22,12 @@ function commonsubstring(str1, str2) {
     length = str1.length > str2.length ? str1.length: str2.length,
     commonstring = "",
     index = 0;
-
+  if (str1 === str2) {
+    return {
+      index: str1.length - 1,
+      commonstring: str1
+    };
+  }
   for (i=0; i<length; i+=1) {
     if (str1[i] === str2[i]) {
       continue;
@@ -35,4 +41,19 @@ function commonsubstring(str1, str2) {
     index: index,
     commonstring: commonstring
   };
+}
+
+function query(a) {
+  "use strict";
+  if (a === null || typeof a === "undefined") {
+      return null;
+  }
+  for (var _ = 1; _ < arguments.length; _++) {
+      var c = arguments[_];
+      a = a[c];
+      if (a === null || typeof a === "undefined") {
+          return null;
+      }
+  }
+  return a;
 }

@@ -4,6 +4,8 @@ var mdata = require("./mississippidata.js");
 
 var utility = require("./utility")();
 var ctrlf = require("./ctrlf");
+
+var utiltest = require("./utiltest");
 var suffixtree;
 
 before(function() {
@@ -30,7 +32,7 @@ describe("Tests related to Suffix Tree", function () {
           }
         }
       }
-    })
+    });
   });
 
   it("Preprocessing: Case 1.1 - Having same repeating characters version2", function (){
@@ -67,50 +69,46 @@ describe("Tests related to Suffix Tree", function () {
     suffixtree.reset();
     suffixtree.setDomain("mississippi");
     suffixtree.sftree.should.eql(mdata);
-  })
+  });
 
 });
 
-
-
-describe("Tests related to utility", function() {
-  it("Should give me correct common string", function() {
-    var str1 = "solatidorimafa";
-    var str2 = "solat";
-    var commonpart = utility.commonsubstring(str1, str2);
-    commonpart.should.have.properties({
-      commonstring: "solat",
-      index: 4
-    });
+describe("Tests for querying suffix tree", function() {
+  it("Find one match", function() {
+    suffixtree.reset();
+    suffixtree.setDomain("mississippi");
+    ["pi"].should.eql(suffixtree.find("pi"));
   });
 
-  it("Should give me empty string for no match", function() {
-    var str1 = "solatidorimafa";
-    var str2 = "gibberish";
-    var commonpart = utility.commonsubstring(str1, str2);
-    commonpart.should.have.properties({
-      commonstring: ""
-    });
+  it("Find three matches", function() {
+    ["ssi", "ssippi", "ssissippi"].should.eql(suffixtree.find("ssi"));
   });
 
-  it("Should handle empty strings properly", function() {
-    var str1 = "";
-    var str2 = "";
-    var commonpart = utility.commonsubstring(str1, str2);
-    commonpart.should.have.properties({
-      index: 0,
-      commonstring: ""
-    });
+  it("Find multiple matches", function() {
+    ["s", "si", "sippi", "sissippi", "ssi", "ssippi", "ssissippi"].should.eql(suffixtree.find("s"));
+  });
+});
+
+describe("Tests for querying from a sentence", function() {
+  it("Should give me one word from a sentence", function() {
+    suffixtree.reset();
+    suffixtree.setDomain("this is a sentence that has multiple sentence");
+    ["has"].should.eql(suffixtree.find("has"));
   });
 
-  it("Should handle null | undefined values", function() {
-    var str1, str2 = undefined;
-    var commonpart = utility.commonsubstring(str1, str2);
-    commonpart.should.have.properties({
-      index: 0,
-      commonstring: ""
-    });
+  it("Should give me multiple words from a sentence", function() {
+    ["t", "th", "this", "that", "tence", "tiple"].should.eql(suffixtree.find("t"));
   });
 
+  it("Should handle duplicity properly", function() {
+    suffixtree.reset();
+    suffixtree.setDomain("duplicate duplicate duplicate duplicate duplicate");
+    ["duplicate"].should.eql(suffixtree.find("duplicate"));
+  });
 
-})
+  it("Should handle no match found properly", function() {
+    console.log("===============================");
+    [].should.eql(suffixtree.find("blah"));
+  });
+
+});
