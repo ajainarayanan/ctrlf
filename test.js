@@ -116,7 +116,7 @@ describe("Tests for querying from a sentence", function() {
     suffixtree.setDomain("The first line contains a single number T -- the number of test cases (no more than 10)." +
       " Each of the next T lines contains a single non-empty string of length no more than 100000 consisting " +
       "of lowercase Latin letters a..z. or nos");
-    ["no", "non-empty", "nos", ].should.eql(suffixtree.find("no"));
+    ["no", "non-empty", "nos" ].should.eql(suffixtree.find("no"));
   });
 
   it("Should hande bigger text", function() {
