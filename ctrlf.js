@@ -22,32 +22,28 @@ ctrlf.prototype.reset = function() {
 }
 
 ctrlf.prototype.find = function find(querystring) {
-  var sftree = JSON.parse(JSON.stringify(this.sftree));
-  var query = querystring;
-  var path = [];
-  var ipoint = 0;
-  for (var i=0; i<query.length; i++) {
-    var s = util.query(sftree, query[i]);
+  var sftree = JSON.parse(JSON.stringify(this.sftree)),
+      query = querystring,
+      path = [],
+      movingPivot = 0,
+      i,
+      currentNode,
+      subquery,
+      commonpart;
 
-    if (s) {
-       if (s.value.length > 0) {
-         var subquery = query.substring(ipoint, query.length);
-         var commonpart = util.commonsubstring(subquery, s.value);
-         if (commonpart.index < subquery.length) {
-           sftree = s.children;
-           path.push(query[i]);
-           ipoint = i + commonpart.index;
-         } else if(commonpart.index === subquery.length) {
-           sftree = s.children;
-           path.push(query[i]);
-           //ipoint = i;
-           break;
-         }
-       } else {
-         path.push(query[i]);
-         sftree = s.children;
-         ipoint = i;
-       }
+  for (i=0; i<query.length; i++) {
+    currentNode = util.query(sftree, query[i]);
+    if (currentNode && currentNode.value.length > 0) {
+      subquery = query.substring(movingPivot, query.length);
+      commonpart = util.commonsubstring(subquery, currentNode.value);
+
+      if (commonpart.index < subquery.length) {
+        sftree = currentNode.children;
+        movingPivot = i + commonpart.index;
+      } else if(commonpart.index === subquery.length) {
+        break;
+      }
+      path.push(query[i]);
     } else {
       break;
     }
@@ -63,8 +59,9 @@ ctrlf.prototype.flattensftree = function (sftree, path) {
   var len = path.length,
       mobj,
       returnarr = [],
+      i,
       prefix;
-  for (var i =0; i<len; i++) {
+  for (i =0; i<len; i++) {
     mobj = util.query(sftree, path[i]);
     matchingarray.push(mobj.value);
     sftree = mobj.children;
@@ -81,10 +78,11 @@ ctrlf.prototype.flattensftree = function (sftree, path) {
 }
 
 ctrlf.prototype.traverseEntireTree = function traverse(prefix, mobj, returnarr) {
-  var keys = Object.keys(mobj.children);
+  var keys = Object.keys(mobj.children),
+      i;
   returnarr.push(prefix + mobj.value);
   if (keys.length > 0) {
-    for (var i =0; i<keys.length; i++) {
+    for (i =0; i<keys.length; i++) {
       this.traverseEntireTree(prefix + mobj.value, mobj.children[keys[i]], returnarr);
     }
   }
@@ -95,10 +93,14 @@ ctrlf.prototype.preprocessDomain = function preProcess() {
   if (this.searchDomain.length === 0) {
     return;
   }
-  var words = this.searchDomain.split(" ");
+  var words = this.searchDomain.split(" "),
+      i,
+      replaceFilter = /[&\/\\#,+()$~%.'":*?<>{}!]/g;
   if (words.length > 0) {
     words.forEach(function (word) {
-      for (var i=word.length-1; i>=0; i-=1) {
+      word = word.toLowerCase();
+      word = word.replace(replaceFilter, "");
+      for (i=word.length-1; i>=0; i-=1) {
           this.addToSFTree(word.substring(i, word.length), this.sftree);
       }
     }.bind(this));
@@ -124,15 +126,14 @@ ctrlf.prototype.addToSFTree = function addToSuffixTree(word, sftree) {
     // fch already at the top root level
     currenttreevalue = sftree[fch].value;
     commonpart = util.commonsubstring(currenttreevalue, word);
-    //console.log(commonpart);
     if (commonpart.commonstring === currenttreevalue) {
       if (commonpart.index !== word.length-1) {
         this.addToSFTree(word.substring(commonpart.index+1, word.length), sftree[fch].children);
       }
 
     } else if(commonpart.commonstring.length < currenttreevalue.length) {
-      var split1 = currenttreevalue.substring(0, commonpart.index+1);
-      var split2 =  currenttreevalue.substring(commonpart.index +1, currenttreevalue.length);
+      split1 = currenttreevalue.substring(0, commonpart.index+1);
+      split2 =  currenttreevalue.substring(commonpart.index +1, currenttreevalue.length);
       sftree[fch].value = split1;
       if (split2[0]) {
         sftree[fch].children[split2[0]] = {

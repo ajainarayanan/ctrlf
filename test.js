@@ -4,6 +4,7 @@ var mdata = require("./mississippidata.js");
 
 var utility = require("./utility")();
 var ctrlf = require("./ctrlf");
+var testdata = require("./testdata.js");
 
 var utiltest = require("./utiltest");
 var suffixtree;
@@ -107,8 +108,21 @@ describe("Tests for querying from a sentence", function() {
   });
 
   it("Should handle no match found properly", function() {
-    console.log("===============================");
     [].should.eql(suffixtree.find("blah"));
+  });
+
+  it("Should handle multiple sentences", function() {
+    suffixtree.reset();
+    suffixtree.setDomain("The first line contains a single number T -- the number of test cases (no more than 10)." +
+      " Each of the next T lines contains a single non-empty string of length no more than 100000 consisting " +
+      "of lowercase Latin letters a..z. or nos");
+    ["no", "non-empty", "nos", ].should.eql(suffixtree.find("no"));
+  });
+
+  it("Should hande bigger text", function() {
+    suffixtree.reset();
+    suffixtree.setDomain(testdata);
+    ["well"].should.eql(suffixtree.find("wel"));
   });
 
 });
