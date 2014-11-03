@@ -1,0 +1,50 @@
+<html lang="en">
+<head>
+  <title> Suffix Tree Demo </title>
+  <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.0/js/bootstrap.min.js"> </script>
+  <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.0/css/bootstrap.min.css"> </link>
+  <meta http-equiv="content-type" content="text/html; charset=UTF8">
+  <style>
+    .node circle {
+	  fill: #fff;
+	  stroke: steelblue;
+	  stroke-width: 3px;
+	}
+
+	.node text { font: 12px sans-serif; }
+
+	.link {
+	  fill: none;
+	  stroke: #ccc;
+	  stroke-width: 2px;
+	}
+
+  textarea {
+    margin: 10px 0;
+  }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h1> Suffix Trees! </h1>
+    <div class="row">
+      <div class="col-sm-6">
+
+          <h3 class="title"> Enter Text and see live in the tree </h3>
+          <textarea class="form-control" data-text-area="inputDomain"></textarea>
+          <button class="btn btn-default btn-primary" data-domain-submit="crunchButton"> Crunch! </button>
+        
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-lg-12">
+        <div class="tree-container">
+
+        </div>
+      </div>
+    </div>
+</div>
+  <script src="./build/demo.js"> </script>
+</body>
+</html>
