@@ -1,10 +1,11 @@
-var util = require("./utility")();
-var emit = require("emit");
+var util = require("./utility.js")();
+var emitter = require("component-emitter");
 module.exports = ctrlf;
 
 function ctrlf(searchDomain) {
   this.searchDomain = searchDomain || "";
   this.sftree = {};
+  emitter(this);
   if (!this.searchDomain) {
     this.preprocessDomain();
   }
@@ -93,14 +94,16 @@ ctrlf.prototype.preprocessDomain = function preProcess() {
   if (this.searchDomain.length === 0) {
     return;
   }
+  this.emit("Preprocessing");
   var words = this.searchDomain.split(" "),
       i,
-      replaceFilter = /[&\/\\#,+()$~%.'":*?<>{}!]/g;
+      replaceFilter = /[\r?\n&\/\\#,+()$~%.'":*?<>{}!]/g;
   if (words.length > 0) {
     words.forEach(function (word) {
       word = word.toLowerCase();
       word = word.replace(replaceFilter, "");
       for (i=word.length-1; i>=0; i-=1) {
+          this.emit("PreProcessingWord", word.substring(i, word.length));
           this.addToSFTree(word.substring(i, word.length), this.sftree);
       }
     }.bind(this));
@@ -123,11 +126,13 @@ ctrlf.prototype.addToSFTree = function addToSuffixTree(word, sftree) {
       wordsplit2;
   fch = word[0];
   if (typeof sftree[fch] === "object") {
+    this.emit("MatchAtTopLevel", word[0], JSON.parse(JSON.stringify(sftree)));
     // fch already at the top root level
     currenttreevalue = sftree[fch].value;
     commonpart = util.commonsubstring(currenttreevalue, word);
     if (commonpart.commonstring === currenttreevalue) {
       if (commonpart.index !== word.length-1) {
+        this.emit("MatchingContinues", word.substring(commonpart.index+1, word.length), sftree[fch].children);
         this.addToSFTree(word.substring(commonpart.index+1, word.length), sftree[fch].children);
       }
 
@@ -135,11 +140,14 @@ ctrlf.prototype.addToSFTree = function addToSuffixTree(word, sftree) {
       split1 = currenttreevalue.substring(0, commonpart.index+1);
       split2 =  currenttreevalue.substring(commonpart.index +1, currenttreevalue.length);
       sftree[fch].value = split1;
+      this.emit("CommonPart", split1, JSON.parse(JSON.stringify(sftree)));
       if (split2[0]) {
         sftree[fch].children[split2[0]] = {
           value: split2,
           children: {}
         };
+        this.emit("SplitInCurrentTreeValue", split2, sftree[fch]);
+        this.emit("SplitInProcessingWord", word.substring(commonpart.index + 1, word.length));
       }
 
       wordsplit2 = word.substring(commonpart.index+1, word.length);
@@ -148,12 +156,14 @@ ctrlf.prototype.addToSFTree = function addToSuffixTree(word, sftree) {
           value: wordsplit2,
           children: {}
         };
+        this.emit("CommonStringInWordSecondSplit", commonpart.commonstring, sftree[fch]);
       }
 
     }
   }else {
     // Add the word if the first characters don't match at the root level.
     // This says this is the new substring that the tree is encountering.
+    this.emit("NoMatchAtTopLevel", word, JSON.parse(JSON.stringify(sftree)))
     sftree[fch] = {
       "value": word,
       "children": {}
