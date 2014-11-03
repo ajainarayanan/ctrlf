@@ -4,13 +4,16 @@
   "description": "Find the close match for the search in any given string(s)",
   "devDependencies": {
     "mocha": "*",
-    "should": "*",
-    "emit": "*"
+    "should": "*"
   },
-  "dependencies": {},
+  "dependencies": {
+    "component-emitter": "*",
+    "d3": "^3.4.13",
+    "jquery": "^2.1.1"
+  },
   "engines": {
-		"node": "0.10.x",
-		"npm": "1.4.x"
+    "node": "0.10.x",
+    "npm": "1.4.x"
   },
   "files": [
     "ctrlf.js",
