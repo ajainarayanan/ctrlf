@@ -1,7 +1,7 @@
 var mocha =  require("mocha");
 var assert = require("should");
 
-var ctrlf = require("./ctrlf");
+var ctrlf = require("../ctrlf");
 var testdata = require("./testdata.js");
 var mdata = require("./mississippidata.js");
 

@@ -103,7 +103,7 @@ ctrlf.prototype.preprocessDomain = function preProcess() {
       word = word.toLowerCase();
       word = word.replace(replaceFilter, "");
       for (i=word.length-1; i>=0; i-=1) {
-          this.emit("PreProcessingWord", word.substring(i, word.length));
+          this.emit("PreProcessingWord", word.substring(i, word.length), JSON.parse(JSON.stringify(this.sftree)));
           this.addToSFTree(word.substring(i, word.length), this.sftree);
       }
     }.bind(this));
@@ -132,8 +132,8 @@ ctrlf.prototype.addToSFTree = function addToSuffixTree(word, sftree) {
     commonpart = util.commonsubstring(currenttreevalue, word);
     if (commonpart.commonstring === currenttreevalue) {
       if (commonpart.index !== word.length-1) {
-        this.emit("MatchingContinues", word.substring(commonpart.index+1, word.length), sftree[fch].children);
         this.addToSFTree(word.substring(commonpart.index+1, word.length), sftree[fch].children);
+        this.emit("MatchingContinues", word.substring(commonpart.index+1, word.length), JSON.parse(JSON.stringify(sftree)));
       }
 
     } else if(commonpart.commonstring.length < currenttreevalue.length) {
@@ -146,7 +146,7 @@ ctrlf.prototype.addToSFTree = function addToSuffixTree(word, sftree) {
           value: split2,
           children: {}
         };
-        this.emit("SplitInCurrentTreeValue", split2, sftree[fch]);
+        this.emit("SplitInCurrentTreeValue", split2, JSON.parse(JSON.stringify(sftree)));
         this.emit("SplitInProcessingWord", word.substring(commonpart.index + 1, word.length));
       }
 
@@ -156,18 +156,17 @@ ctrlf.prototype.addToSFTree = function addToSuffixTree(word, sftree) {
           value: wordsplit2,
           children: {}
         };
-        this.emit("CommonStringInWordSecondSplit", commonpart.commonstring, sftree[fch]);
+        this.emit("CommonStringInWordSecondSplit", commonpart.commonstring, JSON.parse(JSON.stringify(sftree)));
       }
 
     }
   }else {
     // Add the word if the first characters don't match at the root level.
     // This says this is the new substring that the tree is encountering.
-    this.emit("NoMatchAtTopLevel", word, JSON.parse(JSON.stringify(sftree)))
     sftree[fch] = {
       "value": word,
       "children": {}
     };
-
+    this.emit("NoMatchAtTopLevel", word, JSON.parse(JSON.stringify(sftree)))
   }
 }
