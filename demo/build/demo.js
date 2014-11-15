@@ -127,27 +127,27 @@ ctrlf.prototype.addToSFTree = function addToSuffixTree(word, sftree) {
       wordsplit2;
   fch = word[0];
   if (typeof sftree[fch] === "object") {
-    this.emit("MatchAtTopLevel", word[0], JSON.parse(JSON.stringify(sftree)));
+    this.emit("MatchAtTopLevel", word[0], JSON.parse(JSON.stringify(this.sftree)));
     // fch already at the top root level
     currenttreevalue = sftree[fch].value;
     commonpart = util.commonsubstring(currenttreevalue, word);
     if (commonpart.commonstring === currenttreevalue) {
       if (commonpart.index !== word.length-1) {
         this.addToSFTree(word.substring(commonpart.index+1, word.length), sftree[fch].children);
-        this.emit("MatchingContinues", word.substring(commonpart.index+1, word.length), JSON.parse(JSON.stringify(sftree)));
+        this.emit("MatchingContinues", word.substring(commonpart.index+1, word.length), JSON.parse(JSON.stringify(this.sftree)));
       }
 
     } else if(commonpart.commonstring.length < currenttreevalue.length) {
       split1 = currenttreevalue.substring(0, commonpart.index+1);
       split2 =  currenttreevalue.substring(commonpart.index +1, currenttreevalue.length);
       sftree[fch].value = split1;
-      this.emit("CommonPart", split1, JSON.parse(JSON.stringify(sftree)));
+      this.emit("CommonPart", split1, JSON.parse(JSON.stringify(this.sftree)));
       if (split2[0]) {
         sftree[fch].children[split2[0]] = {
           value: split2,
           children: {}
         };
-        this.emit("SplitInCurrentTreeValue", split2, JSON.parse(JSON.stringify(sftree)));
+        this.emit("SplitInCurrentTreeValue", split2, JSON.parse(JSON.stringify(this.sftree)));
         this.emit("SplitInProcessingWord", word.substring(commonpart.index + 1, word.length));
       }
 
@@ -157,7 +157,7 @@ ctrlf.prototype.addToSFTree = function addToSuffixTree(word, sftree) {
           value: wordsplit2,
           children: {}
         };
-        this.emit("CommonStringInWordSecondSplit", commonpart.commonstring, JSON.parse(JSON.stringify(sftree)));
+        this.emit("CommonStringInWordSecondSplit", commonpart.commonstring, JSON.parse(JSON.stringify(this.sftree)));
       }
 
     }
@@ -168,7 +168,7 @@ ctrlf.prototype.addToSFTree = function addToSuffixTree(word, sftree) {
       "value": word,
       "children": {}
     };
-    this.emit("NoMatchAtTopLevel", word, JSON.parse(JSON.stringify(sftree)))
+    this.emit("NoMatchAtTopLevel", word, JSON.parse(JSON.stringify(this.sftree)))
   }
 }
 
@@ -321,7 +321,7 @@ function setEventListeners(suffixtree) {
     var eventObj = (eventsArray.length > 0 ? eventsArray[0] : {});
     processedEventsArray.push(eventsArray.shift());
     if (eventObj.data) {
-      processAndDraw(eventObj.data);
+      processAndDraw(JSON.parse(JSON.stringify(eventObj.data)));
     }
     $(".message-board").append(eventObj.message);
   });
@@ -329,7 +329,7 @@ function setEventListeners(suffixtree) {
     var eventObj = (processedEventsArray.length > 0 ? processedEventsArray[processedEventsArray.length -1] : {});
     eventsArray.unshift(processedEventsArray.pop());
     if (eventObj.data) {
-      processAndDraw(eventObj.data);
+      processAndDraw(JSON.parse(JSON.stringify(eventObj.data)));
     }
     $(".message-board:last").fadeOut();
   });
@@ -361,6 +361,8 @@ function massage(obj, root) {
 },{"../ctrlf.js":1,"./ctrlf-data.js":2,"./draw.js":4,"jquery":7}],4:[function(require,module,exports){
 var d3 = require("d3");
 var $ = require("jquery");
+var tree,
+    diagonal;
 module.exports = draw;
 
 function draw(treeData) {
@@ -374,21 +376,18 @@ function draw(treeData) {
       width = 1000,// - margin.right - margin.left,
       height = 1000;// - margin.top - margin.bottom;
 
-
-  var tree = d3.layout.tree()
-                .size([height, width]);
-
-  var diagonal = d3.svg.diagonal()
-                    .projection(function(d) {
-                      return [d.x, d.y];
-                    });
-
-
   if ($("body div.tree-container svg").length > 0) {
     root = treeData[0];
     svg = d3.select("body div.tree-container svg g");
     update(root, tree, svg, diagonal);
   } else {
+    tree = d3.layout.tree()
+                  .size([height, width]);
+
+    diagonal = d3.svg.diagonal()
+                      .projection(function(d) {
+                        return [d.x, d.y];
+                      });
     svg = d3.select("body div.tree-container").append("svg")
                 .attr("width", width + margin.right + margin.left)
                 .attr("height", height + margin.top + margin.bottom)

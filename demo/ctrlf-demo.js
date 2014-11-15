@@ -67,7 +67,7 @@ function setEventListeners(suffixtree) {
     var eventObj = (eventsArray.length > 0 ? eventsArray[0] : {});
     processedEventsArray.push(eventsArray.shift());
     if (eventObj.data) {
-      processAndDraw(eventObj.data);
+      processAndDraw(JSON.parse(JSON.stringify(eventObj.data)));
     }
     $(".message-board").append(eventObj.message);
   });
@@ -75,7 +75,7 @@ function setEventListeners(suffixtree) {
     var eventObj = (processedEventsArray.length > 0 ? processedEventsArray[processedEventsArray.length -1] : {});
     eventsArray.unshift(processedEventsArray.pop());
     if (eventObj.data) {
-      processAndDraw(eventObj.data);
+      processAndDraw(JSON.parse(JSON.stringify(eventObj.data)));
     }
     $(".message-board:last").fadeOut();
   });
