@@ -1,5 +1,7 @@
 var d3 = require("d3");
 var $ = require("jquery");
+var tree,
+    diagonal;
 module.exports = draw;
 
 function draw(treeData) {
@@ -13,21 +15,18 @@ function draw(treeData) {
       width = 1000,// - margin.right - margin.left,
       height = 1000;// - margin.top - margin.bottom;
 
-
-  var tree = d3.layout.tree()
-                .size([height, width]);
-
-  var diagonal = d3.svg.diagonal()
-                    .projection(function(d) {
-                      return [d.x, d.y];
-                    });
-
-
   if ($("body div.tree-container svg").length > 0) {
     root = treeData[0];
     svg = d3.select("body div.tree-container svg g");
     update(root, tree, svg, diagonal);
   } else {
+    tree = d3.layout.tree()
+                  .size([height, width]);
+
+    diagonal = d3.svg.diagonal()
+                      .projection(function(d) {
+                        return [d.x, d.y];
+                      });
     svg = d3.select("body div.tree-container").append("svg")
                 .attr("width", width + margin.right + margin.left)
                 .attr("height", height + margin.top + margin.bottom)
