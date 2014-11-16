@@ -1,7 +1,11 @@
 var ctrlf = require("../ctrlf.js"),
     data = require("./ctrlf-data.js"),
     $ = require("jquery"),
-    draw = require("./draw.js");
+    util = require("../utility.js")(),
+    draw = require("./draw.js"),
+    eventsArray = [],
+    processedEventsArray = [],
+    objCache = {};
 
 module.exports = demo();
 
@@ -17,82 +21,97 @@ function demo() {
 }
 
 function setEventListeners(suffixtree) {
-  var eventsArray = [],
-      processedEventsArray = [];
 
   suffixtree.on("Preprocessing", function () {
-    $(".message-board").html("<div>Starting to process the text</div>");
+    $(".message-board .message-wrapper").html("<div>Starting to process the text</div>");
   });
   suffixtree.on("PreProcessingWord", function (word, obj) {
-    eventsArray.push({
-      data: obj,
-      message: "<div>Processing word: " + word + "</div>"
-    });
+    pushEvent("Processing word: " + word, word, obj);
   });
   suffixtree.on("MatchAtTopLevel", function (match, obj) {
-    eventsArray.push({
-      data: obj,
-      message: "<div> Match for the character: " + match + "</div>"
-    });
+    pushEvent("Match for the character: " + match, match, obj);
   });
-  suffixtree.on("CommonPart", function (split, obj) {
-    eventsArray.push({
-      data: obj,
-      message: "<div>Common character(s) between current input and existing tree: "
-                + split
-                + "</div>"
-    });
+  suffixtree.on("CommonPart", function (split) {
+    pushEvent("Common character(s) between current input and existing tree: " + split, split);
   });
-  suffixtree.on("SplitInCurrentTreeValue", function(split, obj) {
-    eventsArray.push({
-      data: obj,
-      message: "<div>Split in the current tree value: " + split + "</div>"
-    });
+  suffixtree.on("SplitInCurrentTreeValue", function(split) {
+    pushEvent("Split in the current tree value: " + split, split);
   })
-  suffixtree.on("SplitInProcessingWord", function(split) {
-    eventsArray.push({
-      data: null,
-      message: "<div>Split in the current processing word: " + split + "</div>"
-    })
+  suffixtree.on("SplitInProcessingWord", function(split, obj) {
+    pushEvent("Split in the current processing word: " + split, split);
   })
 
   suffixtree.on("NoMatchAtTopLevel", function(word, obj) {
-    eventsArray.push({
-      data: obj,
-      message: "<div> No Match for the character: " + word + "</div>"
-    });
+    pushEvent("No Match for the character: " + word, word, obj);
   });
 
-  $("[data-button-id='play-button']").on("click", function(e) {
-    var eventObj = (eventsArray.length > 0 ? eventsArray[0] : {});
-    processedEventsArray.push(eventsArray.shift());
-    if (eventObj.data) {
-      processAndDraw(JSON.parse(JSON.stringify(eventObj.data)));
-    }
-    $(".message-board").append(eventObj.message);
+  $("[data-button-id='play-button']").on("click", playButtonClickHandler);
+  $("[data-button-id='prev-button']").on("click", prevButtonClickHandler);
+}
+
+function pushEvent(message, word, obj) {
+  eventsArray.push({
+    data: {
+      treeObj: obj || null,
+      word: word
+    },
+    message: message
   });
-  $("[data-button-id='prev-button']").on("click", function(e) {
-    var eventObj = (processedEventsArray.length > 0 ? processedEventsArray[processedEventsArray.length -1] : {});
-    eventsArray.unshift(processedEventsArray.pop());
-    if (eventObj.data) {
-      processAndDraw(JSON.parse(JSON.stringify(eventObj.data)));
-    }
-    $(".message-board:last").fadeOut();
+}
+
+function scrollToBottomOfMessageBoard() {
+  $(".message-board .message-wrapper")[0].scrollTop = $(".message-board .message-wrapper")[0].scrollHeight;
+}
+
+function playButtonClickHandler(e) {
+  var eventObj;
+  eventObj = eventsArray[0];
+  if (eventsArray.length <= 0) {
+    return;
+  }
+  objCache = eventObj.data.treeObj || objCache;
+  processedEventsArray.push(eventsArray.shift());
+  if (eventObj.data) {
+    processAndDraw(util.objClone(eventObj.data.treeObj || objCache));
+  }
+  $(".message-board .message-wrapper").append($("<div></div>", {
+    text: eventObj.message
+  }));
+  scrollToBottomOfMessageBoard();
+}
+
+function prevButtonClickHandler(e) {
+  var eventObj;
+  eventObj = processedEventsArray[processedEventsArray.length -1]
+  if (processedEventsArray.length <= 0) {
+    return;
+  }
+  objCache = eventObj.data.treeObj || objCache;
+  eventsArray.unshift(processedEventsArray.pop());
+  if (eventObj.data) {
+    processAndDraw(util.objClone(eventObj.data.treeObj || objCache));
+  }
+  $(".message-board .message-wrapper div:last").fadeOut(300, function() {
+    $(this).remove();
+    scrollToBottomOfMessageBoard();
   });
 }
 
 function processAndDraw(sftree) {
   var treeData = massage(sftree, null);
   treeData = [{
-      name: "root",
-      value: "root",
-      children: treeData
+    name: "root",
+    value: "root",
+    children: treeData
   }];
   draw(treeData);
 }
 
 function massage(obj, root) {
   var retArr = [];
+  if (!obj) {
+    return retArr;
+  }
   Object.keys(obj).forEach(function(item) {
     var mobj = $.extend( obj[item], {
         name: obj[item].value,
