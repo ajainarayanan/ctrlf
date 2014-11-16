@@ -21,17 +21,17 @@ function draw(treeData) {
     update(root, tree, svg, diagonal);
   } else {
     tree = d3.layout.tree()
-                  .size([height, width]);
+      .size([height, width]);
 
     diagonal = d3.svg.diagonal()
-                      .projection(function(d) {
-                        return [d.x, d.y];
-                      });
+      .projection(function(d) {
+        return [d.x, d.y];
+      });
     svg = d3.select("body div.tree-container").append("svg")
-                .attr("width", width + margin.right + margin.left)
-                .attr("height", height + margin.top + margin.bottom)
-                .append("g")
-                .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+      .attr("width", width + margin.right + margin.left)
+      .attr("height", height + margin.top + margin.bottom)
+      .append("g")
+      .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
     root = treeData[0];
     update(root, tree, svg, diagonal);
   }
@@ -54,79 +54,79 @@ function update(source, tree, svg, diagonal) {
 
 // D3 Enter stage
   // Enter the nodes.
-  var nodeEnter = node.enter().append("g")
-                      .attr("class", "node")
-                      .attr("transform", function(d) {
-                        return "translate(" + d.x + "," + d.y + ")";
-                      });
+  var nodeEnter = node.enter()
+    .append("g")
+    .attr("class", "node")
+    .attr("transform", function(d) {
+      return "translate(" + d.x + "," + d.y + ")";
+    });
 
   nodeEnter.append("circle")
-            .attr("r", 10)
-            .style("fill", "#fff");
+    .attr("r", 10)
+    .style("fill", "#fff");
 
   // Enter the text
   nodeEnter.append("text")
-          .attr("y", function(d) {
-            return d.children || d._children ? -18 : 18;
-          })
-          .attr("dy", ".35em")
-          .attr("text-anchor", "middle")
-          .text(function(d) { return d.name; })
-          .style("fill-opacity", 1);
+    .attr("y", function(d) {
+      return d.children || d._children ? -18 : 18;
+    })
+    .attr("dy", ".35em")
+    .attr("text-anchor", "middle")
+    .text(function(d) { return d.name; })
+    .style("fill-opacity", 1);
 
   // Declare the links…
-  var link = svg.selectAll("path.link")
-                .data(links, function(d) { return d.target.id; });
+  var link = svg.selectAll("path.link").data(links, function(d) {
+    return d.target.id;
+  });
 
   // Enter the links.
-  link.enter().insert("path", "g")
-              .attr("class", "link")
-              .attr("d", diagonal);
-
+  link.enter()
+    .insert("path", "g")
+    .attr("class", "link")
+    .attr("d", diagonal);
 
   // D3 Update stage
   var nodeUpdate = node.transition()
-      .duration(750)
-      .attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
+    .duration(750)
+    .attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
 
   // Update node
   nodeUpdate.select("circle")
-      .attr("r", 10)
-      .style("fill", function(d) { return d._children ? "lightsteelblue" : "#fff"; });
+    .attr("r", 10)
+    .style("fill", function(d) { return d._children ? "lightsteelblue" : "#fff"; });
 
   // Update Text
   nodeUpdate.select("text")
-      .attr("y", function(d) {
-        return d.children || d._children ? -18 : 18;
-      })
-      .attr("dy", ".35em")
-      .attr("text-anchor", "middle")
-      .text(function(d) { return d.name; })
-      .style("fill-opacity", 1);
+    .attr("y", function(d) {
+      return d.children || d._children ? -18 : 18;
+    })
+    .attr("dy", ".35em")
+    .attr("text-anchor", "middle")
+    .text(function(d) { return d.name; })
+    .style("fill-opacity", 1);
 
   // Update Links
   link.transition()
-      .duration(750)
-      .attr("class", "link")
-      .attr("d", diagonal);
+    .duration(750)
+    .attr("class", "link")
+    .attr("d", diagonal);
 
   // D3 Exit stage
   // Transition exiting nodes to the parent's new position.
   var nodeExit = node.exit().transition()
-      .duration(750)
-      .attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; })
-      .remove();
+    .duration(750)
+    .attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; })
+    .remove();
 
   nodeExit.select("circle")
-      .attr("r", 1e-6);
+    .attr("r", 1e-6);
 
   nodeExit.select("text")
-      .style("fill-opacity", 1e-6);
+    .style("fill-opacity", 1e-6);
 
 
   link.exit().transition()
-      .duration(650)
-      .remove();
-
-
+    .duration(650)
+    .remove();
 }
