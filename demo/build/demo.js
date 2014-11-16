@@ -269,6 +269,7 @@ function demo() {
   c1.setDomain("Mississippi");
   $("button[data-domain-submit='crunchButton']").on("click", function() {
     c1.reset();
+    eventsArray = [];
     c1.setDomain($("textarea[data-text-area='inputDomain']").val());
   });
 
