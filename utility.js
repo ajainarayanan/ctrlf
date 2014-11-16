@@ -3,7 +3,8 @@ module.exports = utility;
 function utility() {
   return {
     commonsubstring: commonsubstring,
-    query: query
+    query: query,
+    objClone: objClone 
   };
 }
 
@@ -56,4 +57,8 @@ function query(a) {
       }
   }
   return a;
+}
+
+function objClone(obj) {
+  return JSON.parse(JSON.stringify(obj));
 }
