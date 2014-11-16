@@ -19,5 +19,8 @@
     "ctrlf.js",
     "utility.js"
   ],
-  "main": "ctrlf.js"
+  "main": "ctrlf.js",
+  "scripts": {
+    "build": "./node_modules/browserify/bin/cmd.js demo/ctrlf-demo.js > demo/build/demo.js"
+  }
 }
