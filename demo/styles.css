@@ -1,0 +1,39 @@
+.node circle {
+  fill: #fff;
+  stroke: steelblue;
+  stroke-width: 3px;
+}
+
+.node text { font: 12px sans-serif; }
+
+.link {
+  fill: none;
+  stroke: #ccc;
+  stroke-width: 2px;
+}
+
+textarea {
+  margin: 10px 0;
+}
+.message-board {
+  color: #FFF;
+  overflow-y: auto;
+  height: 200px;
+  border-radius: 10px;
+  margin-top: 20px;
+  padding: 20px;
+  background-color: #000;
+}
+
+.message-board .message-wrapper {
+  height: 100%;
+  overflow: auto;
+}
+
+.message-board .message-wrapper div:before {
+  content: '# ';
+}
+
+.message-board .message-wrapper div:last-child {
+  color: #008000;
+}
