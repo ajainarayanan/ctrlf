@@ -4,25 +4,7 @@
   <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.0/js/bootstrap.min.js"> </script>
   <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.0/css/bootstrap.min.css"> </link>
   <meta http-equiv="content-type" content="text/html; charset=UTF8">
-  <style>
-    .node circle {
-	  fill: #fff;
-	  stroke: steelblue;
-	  stroke-width: 3px;
-	}
-
-	.node text { font: 12px sans-serif; }
-
-	.link {
-	  fill: none;
-	  stroke: #ccc;
-	  stroke-width: 2px;
-	}
-
-  textarea {
-    margin: 10px 0;
-  }
-  </style>
+  <link rel="stylesheet" href="./styles.css"> </link>
 </head>
 <body>
 
@@ -32,7 +14,7 @@
       <div class="col-sm-6">
 
           <h3 class="title"> Enter Text and see live in the tree </h3>
-          <textarea class="form-control" data-text-area="inputDomain"></textarea>
+          <textarea class="form-control" data-text-area="inputDomain">mississippi</textarea>
           <button class="btn btn-default btn-primary" data-domain-submit="crunchButton"> Crunch! </button>
 
       </div>
@@ -47,13 +29,27 @@
       </div>
     </div>
     <div class="row">
-      <div class="col-lg-10">
-        <div class="tree-container">
+      <div class="col-lg-12">
+        <div class="sf-domain">
+
+        </div>
+        <div class="current-text">
 
         </div>
       </div>
-      <div class="col-lg-2">
+    </div>
+    <div class="row">
+      <div class="col-lg-12">
         <div class="message-board">
+          <div class="message-wrapper">
+
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-lg-12">
+        <div class="tree-container">
 
         </div>
       </div>
