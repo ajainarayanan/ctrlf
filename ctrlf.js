@@ -23,7 +23,7 @@ ctrlf.prototype.reset = function() {
 }
 
 ctrlf.prototype.find = function find(querystring) {
-  var sftree = JSON.parse(JSON.stringify(this.sftree)),
+  var sftree = util.objClone(this.sftree),
       query = querystring,
       path = [],
       movingPivot = 0,
@@ -50,7 +50,7 @@ ctrlf.prototype.find = function find(querystring) {
     }
   }
   if (path.length > 0) {
-    return this.flattensftree(JSON.parse(JSON.stringify(this.sftree)), path);
+    return this.flattensftree(util.objClone(this.sftree), path);
   }
   return [];
 }
@@ -103,7 +103,7 @@ ctrlf.prototype.preprocessDomain = function preProcess() {
       word = word.toLowerCase();
       word = word.replace(replaceFilter, "");
       for (i=word.length-1; i>=0; i-=1) {
-          this.emit("PreProcessingWord", word.substring(i, word.length), JSON.parse(JSON.stringify(this.sftree)));
+          this.emit("PreProcessingWord", word.substring(i, word.length), util.objClone(this.sftree));
           this.addToSFTree(word.substring(i, word.length), this.sftree);
       }
     }.bind(this));
@@ -126,27 +126,27 @@ ctrlf.prototype.addToSFTree = function addToSuffixTree(word, sftree) {
       wordsplit2;
   fch = word[0];
   if (typeof sftree[fch] === "object") {
-    this.emit("MatchAtTopLevel", word[0], JSON.parse(JSON.stringify(this.sftree)));
+    this.emit("MatchAtTopLevel", word[0], util.objClone(this.sftree));
     // fch already at the top root level
     currenttreevalue = sftree[fch].value;
     commonpart = util.commonsubstring(currenttreevalue, word);
     if (commonpart.commonstring === currenttreevalue) {
       if (commonpart.index !== word.length-1) {
         this.addToSFTree(word.substring(commonpart.index+1, word.length), sftree[fch].children);
-        this.emit("MatchingContinues", word.substring(commonpart.index+1, word.length), JSON.parse(JSON.stringify(this.sftree)));
+        this.emit("MatchingContinues", word.substring(commonpart.index+1, word.length), util.objClone(this.sftree));
       }
 
     } else if(commonpart.commonstring.length < currenttreevalue.length) {
       split1 = currenttreevalue.substring(0, commonpart.index+1);
       split2 =  currenttreevalue.substring(commonpart.index +1, currenttreevalue.length);
       sftree[fch].value = split1;
-      this.emit("CommonPart", split1, JSON.parse(JSON.stringify(this.sftree)));
+      this.emit("CommonPart", split1);
       if (split2[0]) {
         sftree[fch].children[split2[0]] = {
           value: split2,
           children: {}
         };
-        this.emit("SplitInCurrentTreeValue", split2, JSON.parse(JSON.stringify(this.sftree)));
+        this.emit("SplitInCurrentTreeValue", split2);
         this.emit("SplitInProcessingWord", word.substring(commonpart.index + 1, word.length));
       }
 
@@ -156,7 +156,7 @@ ctrlf.prototype.addToSFTree = function addToSuffixTree(word, sftree) {
           value: wordsplit2,
           children: {}
         };
-        this.emit("CommonStringInWordSecondSplit", commonpart.commonstring, JSON.parse(JSON.stringify(this.sftree)));
+        this.emit("CommonStringInWordSecondSplit", commonpart.commonstring, util.objClone(this.sftree));
       }
 
     }
@@ -167,6 +167,6 @@ ctrlf.prototype.addToSFTree = function addToSuffixTree(word, sftree) {
       "value": word,
       "children": {}
     };
-    this.emit("NoMatchAtTopLevel", word, JSON.parse(JSON.stringify(this.sftree)))
+    this.emit("NoMatchAtTopLevel", word, util.objClone(this.sftree))
   }
 }
